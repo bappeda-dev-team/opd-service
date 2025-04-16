@@ -37,4 +37,38 @@ class OpdServiceApplicationTests {
                 });
     }
 
+    @Test
+    void whenGetOpdNotExistingThenReturnNotFound() {
+        webTestClient
+                .get()
+                .uri("/opd/1234")
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("404")
+                .jsonPath("$.message").isEqualTo("OPD dengan kode 1234 tidak ditemukan");
+    }
+
+    @Test
+    void whenPostOpdAlreadyExistsThenReturnUnprocessableEntity() {
+        var opdToCreate = Opd.of("5.01.5.05.0.00.01.0000", "Test OPD", "");
+
+        webTestClient
+                .post()
+                .uri("/opd")
+                .bodyValue(opdToCreate)
+                .exchange()
+                .expectStatus().isCreated();
+
+        webTestClient
+                .post()
+                .uri("/opd")
+                .bodyValue(opdToCreate)
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("422")
+                .jsonPath("$.message").isEqualTo("OPD dengan kode " + opdToCreate.kodeOpd() + " sudah ada");
+    }
+
 }

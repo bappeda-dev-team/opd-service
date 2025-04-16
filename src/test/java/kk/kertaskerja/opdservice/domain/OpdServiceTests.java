@@ -36,7 +36,7 @@ public class OpdServiceTests {
         when(opdRepository.findByKodeOpd(kodeOpd)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> opdService.viewOpdDetail(kodeOpd))
                 .isInstanceOf(OpdNotFoundException.class)
-                .hasMessage("Kode OPD " + kodeOpd + " tidak ditemukan");
+                .hasMessage("OPD dengan kode " + kodeOpd + " tidak ditemukan");
     }
 
     @Test

@@ -27,7 +27,7 @@ public class OpdJdbcTests {
 
     @Test
     void findAllOpds() {
-        var opd1 = Opd.of("5.01.5.05.0.00.01.0000", "Test OPD", "");
+        var opd1 = Opd.of("1.01.5.05.0.00.01.0000", "Test OPD", "");
         var opd2 = Opd.of("1.01.2.05.3.03.03.0000", "Test OPD", "");
         jdbcAggregateTemplate.insert(opd1);
         jdbcAggregateTemplate.insert(opd2);
