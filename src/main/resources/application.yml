@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: opd-service
+  datasource:
+    username: user
+    password: password
+    url: jdbc:postgresql://localhost:5432/kertaskerja_opd
+    hikari:
+      connection-timeout: 2000
+      maximum-pool-size: 5
+kertaskerja:
+  status-message: OPD SERVICE IS UP
+server:
+  port: 8002
+  shutdown: graceful
+  tomcat:
+    connection-timeout: 2s
+    keep-alive-timeout: 15s
+    threads:
+      max: 50
+      min-spare: 5
