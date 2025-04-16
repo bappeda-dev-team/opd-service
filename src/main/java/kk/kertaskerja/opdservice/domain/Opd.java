@@ -24,7 +24,6 @@ public record Opd(
         String namaOpd,
 
         @Nullable
-        // TODO: implement pattern check if not null
         String kodeOpdParent,
 
         @Version
