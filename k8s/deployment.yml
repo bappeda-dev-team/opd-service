@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opd-service
+  labels:
+    app: opd-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opd-service
+  template:
+    metadata:
+      labels:
+        app: opd-service
+    spec:
+      containers:
+        - name: opd-service
+          image: opd-service
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 5" ]
+          ports:
+            - containerPort: 8002
+          env:
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://kertaskerja-postgres:5432/kertaskerja_opd
+            - name: SPRING_PROFILES_ACTIVE
+              value: testdata
