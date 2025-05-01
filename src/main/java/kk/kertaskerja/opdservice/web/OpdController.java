@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("opd")
+@RequestMapping("opds")
 public class OpdController {
     private final OpdService opdService;
 

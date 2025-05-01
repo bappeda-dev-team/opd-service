@@ -8,10 +8,16 @@ spring:
     hikari:
       connection-timeout: 2000
       maximum-pool-size: 5
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/Kertaskerja
+
 kertaskerja:
   status-message: OPD SERVICE IS UP
 server:
-  port: 8002
+  port: 9001
   shutdown: graceful
   tomcat:
     connection-timeout: 2s
