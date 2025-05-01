@@ -13,7 +13,7 @@ public class OpdService {
     }
 
     public Iterable<Opd> viewOpdList() {
-        return opdRepository.findAll();
+        return opdRepository.findAllByOrderByNamaOpdAsc();
     }
 
     public Opd viewOpdDetail(String kodeOpd) {

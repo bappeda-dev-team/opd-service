@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface OpdRepository extends CrudRepository<Opd, Long> {
+    Iterable<Opd> findAllByOrderByNamaOpdAsc();
     Optional<Opd> findByKodeOpd(String kodeOpd);
     boolean existsByKodeOpd(String kodeOpd);
 
