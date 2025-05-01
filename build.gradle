@@ -19,7 +19,7 @@ repositories {
 
 ext {
     set('testcontainersVersion', "1.17.3")
-    set('testKeycloakVersion', "3.4.0")
+    set('testKeycloakVersion', "3.7.0")
 }
 
 dependencies {

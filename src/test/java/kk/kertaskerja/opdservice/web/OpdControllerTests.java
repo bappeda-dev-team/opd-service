@@ -49,8 +49,10 @@ public class OpdControllerTests {
     void whenGetOpdExistAndNotAuthenticatedThenShouldReturn200() throws Exception {
         var kodeOpd = "5.01.5.05.0.00.01.0000";
         var expectedOpd = Opd.of(kodeOpd, "Contoh OPD", "");
+        given(opdService.viewOpdDetail(kodeOpd)).willReturn(expectedOpd);
         mvc.perform(get("/opds/" + kodeOpd))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+        ;
     }
 
     @Test
