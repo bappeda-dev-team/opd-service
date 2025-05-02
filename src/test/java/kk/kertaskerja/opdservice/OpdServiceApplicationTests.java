@@ -51,7 +51,7 @@ class OpdServiceApplicationTests {
                 .build();
 
         isabelleToken = authenticateWith("isabelle", "password", webClient);
-        bjornToken = authenticateWith("bjorn", "password", webClient);
+        bjornToken = authenticateWith("bjorn", "password1", webClient);
     }
 
     @Test
