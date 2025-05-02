@@ -54,39 +54,79 @@ class OpdServiceApplicationTests {
         bjornToken = authenticateWith("bjorn", "password", webClient);
     }
 
-    private static KeycloakToken authenticateWith(String username, String password, WebClient webClient) {
-        return webClient.post().body(
-                BodyInserters.fromFormData("grant_type", "password")
-                        .with("client_id", "kertaskerja-test")
-                        .with("username", username)
-                        .with("password", password))
-                .retrieve()
-                .bodyToMono(KeycloakToken.class)
-                .block();
-    }
-
-    private record KeycloakToken(String access_token) {
-        @JsonCreator
-        private KeycloakToken(@JsonProperty("access_token") final String access_token) {
-            this.access_token = access_token;
-        }
-    }
-
-
     @Test
-    void whenPostRequestThenOpdCreated() {
+    void whenPostRequestByEmployeeThenOpdCreated() {
         var expectedOpd = Opd.of("5.01.5.05.0.00.02.0000", "Test OPD", "");
 
         webTestClient
                 .post()
                 .uri("/opds")
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
                 .bodyValue(expectedOpd)
                 .exchange()
                 .expectStatus().isCreated()
-                .expectBody(Opd.class).value( actualOpd -> {
+                .expectBody(Opd.class).value(actualOpd -> {
                     assertThat(actualOpd).isNotNull();
                     assertThat(actualOpd.kodeOpd())
                             .isEqualTo(expectedOpd.kodeOpd());
+                    assertThat(actualOpd.isParentOpd()).isTrue();
+                    assertThat(actualOpd.isSubOpd()).isFalse();
+                });
+    }
+
+    @Test
+    void whenPostRequestByCustomerThen403() {
+        var expectedOpd = Opd.of("5.01.5.05.0.00.02.0000", "Test OPD", "");
+        webTestClient.post()
+                .uri("/opds")
+                .headers(headers -> headers.setBearerAuth(bjornToken.access_token))
+                .bodyValue(expectedOpd)
+                .exchange()
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    void whenPostRequestUnauthorizedThen401() {
+        var expectedOpd = Opd.of("5.01.5.05.0.00.02.0000", "Test OPD", "");
+        webTestClient
+                .post()
+                .uri("/opds")
+                .bodyValue(expectedOpd)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void whenPutRequestByEmployeeThenOpdUpdated() {
+        var kodeOpd = "5.01.5.05.0.00.01.0000";
+        var opdToCreate = Opd.of(kodeOpd, "Test OPD", "");
+        Opd createdOpd = webTestClient
+                .post()
+                .uri("/opds")
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
+                .bodyValue(opdToCreate)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(Opd.class).value(opd -> assertThat(opd).isNotNull())
+                .returnResult().getResponseBody();
+
+        var opdToUpdate = new Opd(createdOpd.id(),
+                createdOpd.kodeOpd(), "Test OPD Updated", "",
+                createdOpd.version(), createdOpd.createdDate(), createdOpd.lastModifiedDate());
+
+        webTestClient
+                .put()
+                .uri("/opds/" + kodeOpd)
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
+                .bodyValue(opdToUpdate)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Opd.class).value(actualOpd -> {
+                    assertThat(actualOpd).isNotNull();
+                    assertThat(actualOpd.kodeOpd())
+                            .isEqualTo(opdToUpdate.kodeOpd());
+                    assertThat(actualOpd.namaOpd())
+                            .isEqualTo(opdToUpdate.namaOpd());
                     assertThat(actualOpd.isParentOpd()).isTrue();
                     assertThat(actualOpd.isSubOpd()).isFalse();
                 });
@@ -105,12 +145,13 @@ class OpdServiceApplicationTests {
     }
 
     @Test
-    void whenPostOpdAlreadyExistsThenReturnUnprocessableEntity() {
-        var opdToCreate = Opd.of("5.01.5.05.0.00.01.0000", "Test OPD", "");
+    void whenPostOpdAlreadyExistsByEmployeeThenReturnUnprocessableEntity() {
+        var opdToCreate = Opd.of("5.01.5.05.0.00.01.0001", "Test OPD", "");
 
         webTestClient
                 .post()
                 .uri("/opds")
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
                 .bodyValue(opdToCreate)
                 .exchange()
                 .expectStatus().isCreated();
@@ -118,12 +159,58 @@ class OpdServiceApplicationTests {
         webTestClient
                 .post()
                 .uri("/opds")
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
                 .bodyValue(opdToCreate)
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody()
                 .jsonPath("$.status").isEqualTo("422")
                 .jsonPath("$.message").isEqualTo("OPD dengan kode " + opdToCreate.kodeOpd() + " sudah ada");
+    }
+
+    @Test
+    void whenDeleteRequestByEmployeeThenOpdDeleted() {
+        var kodeOpd = "5.01.5.05.0.00.01.0002";
+        var opdToCreate = Opd.of(kodeOpd, "Test OPD", "");
+        webTestClient
+                .post()
+                .uri("/opds")
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
+                .bodyValue(opdToCreate)
+                .exchange()
+                .expectStatus().isCreated();
+
+        webTestClient.delete()
+                .uri("/opds/" + kodeOpd)
+                .headers(headers -> headers.setBearerAuth(isabelleToken.access_token))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        webTestClient.get().uri("/opds/" + kodeOpd)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("404")
+                .jsonPath("$.message").isEqualTo("OPD dengan kode " + kodeOpd + " tidak ditemukan");
+    }
+
+
+    private static KeycloakToken authenticateWith(String username, String password, WebClient webClient) {
+        return webClient.post().body(
+                        BodyInserters.fromFormData("grant_type", "password")
+                                .with("client_id", "kertaskerja-test")
+                                .with("username", username)
+                                .with("password", password))
+                .retrieve()
+                .bodyToMono(KeycloakToken.class)
+                .block();
+    }
+
+    private record KeycloakToken(String access_token) {
+        @JsonCreator
+        private KeycloakToken(@JsonProperty("access_token") final String access_token) {
+            this.access_token = access_token;
+        }
     }
 
 }

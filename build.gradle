@@ -19,7 +19,7 @@ repositories {
 
 ext {
     set('testcontainersVersion', "1.17.3")
-    set('testKeycloakVersion', "3.7.0")
+    set('testKeycloakVersion', "3.3.1")
 }
 
 dependencies {
@@ -34,6 +34,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation "com.github.dasniko:testcontainers-keycloak:${testKeycloakVersion}"
