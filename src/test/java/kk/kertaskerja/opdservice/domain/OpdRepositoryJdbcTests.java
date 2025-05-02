@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(DataConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("integration")
-public class OpdJdbcTests {
+public class OpdRepositoryJdbcTests {
     @Autowired
     private OpdRepository opdRepository;
 
@@ -38,5 +39,24 @@ public class OpdJdbcTests {
                 .filter(opd ->
                     opd.kodeOpd().equals(opd1.kodeOpd()) || opd.kodeOpd().equals(opd2.kodeOpd()))
                 .collect(Collectors.toList())).hasSize(2);
+    }
+
+    @Test
+    void whenCreateOpdNotAuthenticatedThenNoAuditMetadata() {
+        var opdToCreate = Opd.of("1.01.5.05.0.00.02.0000", "Test OPD", "");
+        var createdOpd = opdRepository.save(opdToCreate);
+
+        assertThat(createdOpd.createdBy()).isBlank();
+        assertThat(createdOpd.lastModifiedBy()).isBlank();
+    }
+
+    @Test
+    @WithMockUser("jhon")
+    void whenCreateOpdAuthenticatedThenAuditMetadata() {
+        var opdToCreate = Opd.of("1.01.5.05.0.00.02.0000", "Test OPD", "");
+        var createdOpd = opdRepository.save(opdToCreate);
+
+        assertThat(createdOpd.createdBy()).isEqualTo("jhon");
+        assertThat(createdOpd.lastModifiedBy()).isEqualTo("jhon");
     }
 }

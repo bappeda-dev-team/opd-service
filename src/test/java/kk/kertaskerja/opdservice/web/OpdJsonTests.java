@@ -18,7 +18,7 @@ public class OpdJsonTests {
     @Test
     void testSerialize() throws Exception {
         var now = Instant.now();
-        var opd = new Opd(394L, "1.01.0.00.0.00.01.0000", "Test OPD", "", 3, now, now);
+        var opd = new Opd(394L, "1.01.0.00.0.00.01.0000", "Test OPD", "", 3, now, now, "isabelle", "isabelle");
         var jsonContent = json.write(opd);
         assertThat(jsonContent).extractingJsonPathNumberValue("@.id")
                 .isEqualTo(opd.id().intValue());
@@ -38,5 +38,9 @@ public class OpdJsonTests {
                 .isTrue();
         assertThat(jsonContent).extractingJsonPathBooleanValue("@.subOpd")
                 .isFalse();
+        assertThat(jsonContent).extractingJsonPathStringValue("@.createdBy")
+                .isEqualTo(opd.createdBy());
+        assertThat(jsonContent).extractingJsonPathStringValue("@.lastModifiedBy")
+                .isEqualTo(opd.lastModifiedBy());
     }
 }

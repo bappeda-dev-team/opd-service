@@ -112,7 +112,8 @@ class OpdServiceApplicationTests {
 
         var opdToUpdate = new Opd(createdOpd.id(),
                 createdOpd.kodeOpd(), "Test OPD Updated", "",
-                createdOpd.version(), createdOpd.createdDate(), createdOpd.lastModifiedDate());
+                createdOpd.version(), createdOpd.createdDate(), createdOpd.lastModifiedDate(),
+                createdOpd.createdBy(), createdOpd.lastModifiedBy());
 
         webTestClient
                 .put()

@@ -1,12 +1,9 @@
 package kk.kertaskerja.opdservice.domain;
 
 import jakarta.annotation.Nullable;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
 
 import java.time.Instant;
 
@@ -33,10 +30,16 @@ public record Opd(
         Instant createdDate,
 
         @LastModifiedDate
-        Instant lastModifiedDate
+        Instant lastModifiedDate,
+
+        @CreatedBy
+        String createdBy,
+
+        @LastModifiedBy
+        String lastModifiedBy
 ) {
     public static Opd of(String kodeOpd, String namaOpd, String kodeOpdParent) {
-        return new Opd(null, kodeOpd, namaOpd, kodeOpdParent, 0, null, null);
+        return new Opd(null, kodeOpd, namaOpd, kodeOpdParent, 0, null, null, "", "");
     }
 
     public boolean isSubOpd() {

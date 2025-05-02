@@ -46,7 +46,13 @@ public class OpdService {
 
     public Opd editOpdDetails(String kodeOpd, Opd opd) {
         return opdRepository.findByKodeOpd(kodeOpd).map(existingOpd -> {
-            var opdToUpdate = new Opd(existingOpd.id(), opd.kodeOpd(), opd.namaOpd(), opd.kodeOpdParent(), existingOpd.version(), existingOpd.createdDate(), existingOpd.lastModifiedDate());
+            var opdToUpdate = new Opd(
+                    existingOpd.id(),
+                    opd.kodeOpd(),
+                    opd.namaOpd(),
+                    opd.kodeOpdParent(), existingOpd.version(),
+                    existingOpd.createdDate(), existingOpd.lastModifiedDate(),
+                    existingOpd.createdBy(), existingOpd.lastModifiedBy());
             return opdRepository.save(opdToUpdate);
         }).orElseGet(() -> addOpd(opd));
     }
