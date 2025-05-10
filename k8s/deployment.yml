@@ -23,11 +23,14 @@ spec:
               exec:
                 command: [ "sh", "-c", "sleep 5" ]
           ports:
-            - containerPort: 9002
+            - containerPort: 9001
           env:
             - name: BPL_JVM_THREAD_COUNT
               value: "50"
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://kertaskerja-postgres:5432/kertaskerja_opd
-            - name: SPRING_PROFILES_ACTIVE
-              value: testdata
+          volumeMounts:
+            - name: opd-config-volume
+              mountPath: /workspace/config
+      volumes:
+        - name: opd-config-volume
+          configMap:
+            name: opd-config

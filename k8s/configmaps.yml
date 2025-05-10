@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opd-config
+  labels:
+    app: opd-service
+data:
+  application.yml: |
+    kertaskerja:
+      status-message: OPD SERVICE IS UP FROM KUBERNETES
+    spring:
+      datasource:
+        url: jdbc:postgresql://kertaskerja-postgres:5432/kertaskerja_opd
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              issuer-uri: http://kertaskerja-keycloak/realms/Kertaskerja

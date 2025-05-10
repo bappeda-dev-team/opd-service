@@ -1,6 +1,11 @@
 spring:
   application:
     name: opd-service
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
   datasource:
     username: user
     password: password
