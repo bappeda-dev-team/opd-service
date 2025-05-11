@@ -18,8 +18,9 @@ repositories {
 }
 
 ext {
+    set('springCloudVersion', "2024.0.1")
     set('testcontainersVersion', "1.17.3")
-    set('testKeycloakVersion', "3.3.1")
+    set('testKeycloakVersion', "3.7.0")
 }
 
 dependencies {
@@ -42,6 +43,7 @@ dependencies {
 
 dependencyManagement {
     imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
     }
 }

@@ -34,13 +34,13 @@ class OpdServiceApplicationTests {
     private WebTestClient webTestClient;
 
     @Container
-    private static final KeycloakContainer keycloakContainer = new KeycloakContainer("quay.io/keycloak/keycloak:19.0")
-            .withRealmImportFile("test-realm-config.json");
+    private static final KeycloakContainer keycloakContainer = new KeycloakContainer("quay.io/keycloak/keycloak:26.2")
+            .withRealmImportFile("/test-realm-config.json");
 
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> keycloakContainer.getAuthServerUrl() + "/realms/Kertaskerja");
+                    () -> keycloakContainer.getAuthServerUrl() + "/realms/Kertaskerja");
     }
 
     @BeforeAll
@@ -51,7 +51,25 @@ class OpdServiceApplicationTests {
                 .build();
 
         isabelleToken = authenticateWith("isabelle", "password", webClient);
-        bjornToken = authenticateWith("bjorn", "password1", webClient);
+        bjornToken = authenticateWith("bjorn", "password", webClient);
+    }
+
+    private static KeycloakToken authenticateWith(String username, String password, WebClient webClient) {
+        return webClient.post().body(
+                        BodyInserters.fromFormData("grant_type", "password")
+                                .with("client_id", "kertaskerja-test")
+                                .with("username", username)
+                                .with("password", password))
+                .retrieve()
+                .bodyToMono(KeycloakToken.class)
+                .block();
+    }
+
+    private record KeycloakToken(String access_token) {
+        @JsonCreator
+        private KeycloakToken(@JsonProperty("access_token") final String access_token) {
+            this.access_token = access_token;
+        }
     }
 
     @Test
@@ -194,24 +212,4 @@ class OpdServiceApplicationTests {
                 .jsonPath("$.status").isEqualTo("404")
                 .jsonPath("$.message").isEqualTo("OPD dengan kode " + kodeOpd + " tidak ditemukan");
     }
-
-
-    private static KeycloakToken authenticateWith(String username, String password, WebClient webClient) {
-        return webClient.post().body(
-                        BodyInserters.fromFormData("grant_type", "password")
-                                .with("client_id", "kertaskerja-test")
-                                .with("username", username)
-                                .with("password", password))
-                .retrieve()
-                .bodyToMono(KeycloakToken.class)
-                .block();
-    }
-
-    private record KeycloakToken(String access_token) {
-        @JsonCreator
-        private KeycloakToken(@JsonProperty("access_token") final String access_token) {
-            this.access_token = access_token;
-        }
-    }
-
 }
