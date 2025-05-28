@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import kk.kertaskerja.opdservice.domain.Opd;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,7 @@ class OpdServiceApplicationTests {
 
     @Test
     void whenPostRequestByEmployeeThenOpdCreated() {
-        var expectedOpd = Opd.of("5.01.5.05.0.00.02.0000", "Test OPD", "");
+        var expectedOpd = Opd.of("5.11.5.05.0.00.01.0000", "Test OPD Z", "");
 
         webTestClient
                 .post()
@@ -93,14 +94,14 @@ class OpdServiceApplicationTests {
     }
 
     @Test
-    void whenPostRequestByCustomerThen403() {
+    void whenPostRequestByCustomerThen201() {
         var expectedOpd = Opd.of("5.01.5.05.0.00.02.0000", "Test OPD", "");
         webTestClient.post()
                 .uri("/opds")
                 .headers(headers -> headers.setBearerAuth(bjornToken.access_token))
                 .bodyValue(expectedOpd)
                 .exchange()
-                .expectStatus().isForbidden();
+                .expectStatus().isCreated();
     }
 
     @Test
@@ -128,6 +129,7 @@ class OpdServiceApplicationTests {
                 .expectBody(Opd.class).value(opd -> assertThat(opd).isNotNull())
                 .returnResult().getResponseBody();
 
+        Assertions.assertNotNull(createdOpd);
         var opdToUpdate = new Opd(createdOpd.id(),
                 createdOpd.kodeOpd(), "Test OPD Updated", "",
                 createdOpd.version(), createdOpd.createdDate(), createdOpd.lastModifiedDate(),

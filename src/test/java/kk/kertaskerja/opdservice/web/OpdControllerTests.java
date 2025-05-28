@@ -65,12 +65,12 @@ public class OpdControllerTests {
     }
 
     @Test
-    void whenDeleteOpdWithCustomerRoleThenShouldReturn403() throws Exception {
+    void whenDeleteOpdWithCustomerRoleThenShouldReturn204() throws Exception {
         var kodeOpd = "5.01.5.05.0.00.01.0000";
         mvc.perform(MockMvcRequestBuilders.delete("/opds/" + kodeOpd)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()
                                 .authorities(new SimpleGrantedAuthority("ROLE_customer"))))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class OpdControllerTests {
     }
 
     @Test
-    void whenPostOpdWithCustomerRoleThenShouldReturn403() throws Exception {
+    void whenPostOpdWithCustomerRoleThenShouldReturn201() throws Exception {
             var kodeOpd = "5.01.5.05.0.00.01.0000";
             var opdToCreate = Opd.of(kodeOpd, "Contoh OPD", "");
             mvc.perform(MockMvcRequestBuilders.post("/opds")
@@ -101,7 +101,7 @@ public class OpdControllerTests {
                             .content(objectMapper.writeValueAsString(opdToCreate))
                             .with(SecurityMockMvcRequestPostProcessors.jwt()
                                     .authorities(new SimpleGrantedAuthority("ROLE_customer"))))
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isCreated());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class OpdControllerTests {
                         .content(objectMapper.writeValueAsString(opdToCreate))
                         .with(SecurityMockMvcRequestPostProcessors.jwt()
                                 .authorities(new SimpleGrantedAuthority("ROLE_customer"))))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     @Test
