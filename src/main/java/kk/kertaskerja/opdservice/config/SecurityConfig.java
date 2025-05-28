@@ -21,7 +21,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers(HttpMethod.GET, "/", "/opds/**")
                                 .permitAll()
-                                .anyRequest().hasRole("employee")
+                                .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(sessionManagement ->
@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .build();
     }
 
+    // role based authorization
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         var jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
